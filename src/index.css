@@ -1,0 +1,28 @@
+:root {
+  --font-header: "Poppins", serif;
+  --font-body: "Roboto", serif;
+  --brown: #804E27;
+  --light-brown: #BF7D3A;
+  --yellow: #F7CA79;
+  --dark: #383838;
+  --light-dark: #565050;
+  --light: #F4E1D2;
+  --white: #fcfcfc;
+  --font-size-small: 1.7rem; 
+  --font-size-small-medium: 1.9rem; 
+  --font-size-medium: 2.2rem;
+  --font-size-medium-large: 2.7rem; 
+  --font-size-large: 3.2rem; 
+}
+
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-size: 10px;
+}
+
+body{
+  background-color: white;
+  min-height: 100vh;
+}
