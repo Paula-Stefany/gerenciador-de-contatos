@@ -235,6 +235,12 @@
 
 .button-exclude{
   background-image: linear-gradient(to top right, #c50303, #680202);
+  font-weight: 500;
+}
+
+.exclude-card{
+  padding: 0.3rem 0.9rem;
+  margin: 1.5rem 0;
 }
 
 .exclude-description{
@@ -243,6 +249,13 @@
   margin-bottom: 1rem;
   color: var(--dark);
   font-weight: 500;
+}
+
+.exclude-description-contact{
+  font-family: var(--font-body);
+  font-size: var(--font-size-small);
+  margin-bottom: 1rem;
+  color: var(--dark);
 }
 
 .modal-button-close{

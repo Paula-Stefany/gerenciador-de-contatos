@@ -5,14 +5,6 @@ import {useForm} from 'react-hook-form'
 import { createContactFormData, createContactFormSchema }  from './validations/createContactFormSchema'
 import { zodResolver } from '@hookform/resolvers/zod';
 
-// useref para se referir a primeira renderização 
-// useEffect para primeira renderização onde vai pegar os dados do localStorage
-// useeffect que não funciona na primeira renderização e que vai mudar os dados do local storage
-// useState que vai quardar meu objeto que vai guardar os contatos(Tipar com Interface)
-// Interface para tipar as chaves de categorias
-// useState que vai conter ou all ou alguma chave de categories('all' | keyof categories)
-// useState para armazenar cada contato individualmente e depois acrecentado ao useState que representa o objeto de contém todos os contatos
-// useState que representa um objeto para os contatos editados(Tipar através de uma interface), com duas chaves(enabled: false) e contact(para armazenar os valores do contato que será editado(iniciar cada chave com '' e false para as categorias))
 
 interface Categoria{
   familia: boolean,
@@ -20,11 +12,24 @@ interface Categoria{
   colegas: boolean
 }
 
-interface Contact{
+export interface Contact{
   nome: string,
   numero: string,
   email: string,
   categoria: Categoria
+}
+
+interface PickContact{
+  toEdit: boolean,
+  toExclude: boolean,
+  contact: Contact
+}
+
+interface CategoryButtons{
+  todos: boolean,
+  familia: boolean,
+  amigos: boolean,
+  colegas: boolean
 }
 
 function App() {
@@ -45,9 +50,24 @@ function App() {
   const [contacts, setContacts] = useState<Contact[]>([])
   const [phone, setPhone] = useState<string>('');
   const isFirstRender = useRef<boolean>(true);
+  const [categoryButtons, setCategoryButtons] = useState<CategoryButtons>({
+    todos: false,
+    familia: false,
+    amigos: false,
+    colegas: false
+  });
+
+  const [choosedCategory, setChoosedCategory] = useState<keyof CategoryButtons>('todos');
+
   const {register, handleSubmit, reset, formState:{errors}} = useForm<createContactFormData>({resolver: zodResolver(createContactFormSchema), 
     defaultValues
   });
+  const [pickContact, setPickContact] = useState<PickContact>({
+    toEdit: false,
+    toExclude: false,
+    contact: defaultValues
+  })
+
 
   useEffect(() => {
 
@@ -60,6 +80,7 @@ function App() {
 
   }, [])
 
+
   useEffect(() => {
 
     if (isFirstRender.current){
@@ -71,12 +92,12 @@ function App() {
 
   }, [contacts])
 
+  
   const contactTotal = useMemo(() => {
 
     return contacts.length;
 
   }, [contacts])
-
 
   const onSubmit = (data:Contact) => {
 
@@ -111,13 +132,37 @@ function App() {
       return input;
   };
 
-  // Função para tratar a mudança do input
   const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      // Formata o valor enquanto digita
       const formattedPhone = formatPhoneNumber(event.target.value);
-      setPhone(formattedPhone); // Atualiza o estado com o número formatado
+      setPhone(formattedPhone); 
   };
 
+  function ContactToExclude(index: number){
+
+    const contactToExclude: Contact = contacts[index];
+
+    setPickContact({
+      toEdit: false,
+      toExclude: true,
+      contact: contactToExclude
+    })
+
+  }
+
+  function handleExclude(){
+
+    const newContactsList = contacts.filter((eachContact) => eachContact !== pickContact.contact);
+    setContacts(newContactsList);
+
+    setPickContact({
+      toEdit: false,
+      toExclude: false,
+      contact: defaultValues
+    });
+
+    setModalExclude(false);
+
+  }
 
   return (
     <>
@@ -127,7 +172,7 @@ function App() {
           <h1 className='title'>Contatos</h1>
           <a href='#header'>
             <i className="fa-solid fa-code
-            logo-code" aria-label='Logo de café'></i>
+            logo-code" aria-label='Logo'></i>
           </a>
         </div>
        
@@ -149,25 +194,31 @@ function App() {
 
       <section className='categorys'>
         <div className='category-buttons'>
-          <div className='category-button'>
-            Todos
-          </div>
-          <div className='category-button'>
-            Amigos
-          </div>
-          <div className='category-button'>
-            Família
-          </div>
-          <div className='category-button'>
-            Colegas
-          </div>
+
+          {Object.keys(categoryButtons).map((key, index) =>{
+
+            const categoryKey = key as keyof CategoryButtons;
+            return (
+              <div onClick={() => setChoosedCategory(categoryKey)} key={index} className='category-button'>
+                {categoryKey}
+              </div>
+            )       
+          } )}
+          
         </div>
       </section>
 
       <section className='contacts-cards'>
 
             <div className='contact-card-content'>
-              { contacts.map((contact, index) => {
+              { contacts
+              .filter(contact => {
+                if (choosedCategory === 'todos') {      
+                  return true;
+                } else {
+                  return contact.categoria[choosedCategory as keyof Categoria] === true;
+                }
+              }).map((contact, index) => {
                 return (
                   <article key={index} className='contact-card'>
       
@@ -194,7 +245,7 @@ function App() {
                       </div>
                       <div className='card-icons'>
                         <i className="fa-regular fa-pen-to-square"></i>
-                        <i className="fa-regular fa-trash-can" onClick={() => setModalExclude(true)}></i>
+                        <i className="fa-regular fa-trash-can" onClick={() => {setModalExclude(true); ContactToExclude(index)}}></i>
                       </div>
                     </div>
       
@@ -263,14 +314,17 @@ function App() {
       <Modal
       isOpen={modalExclude}
       setIsOpen={setModalExclude}
-      className="modal-exclude">
+      className="modal-exclude"
+      >
         {/* CHILDREN */}
-          <p className='exclude-description'>Certeza que quer excluir o contato de:</p>          
-          <button className="modal-button button-exclude">Excluir</button>
+          <p className='exclude-description'>Certeza que quer excluir o contato de:</p>   
+          <article className='exclude-card'>
+            <p className='exclude-description-contact'>{pickContact.contact.nome}</p>       
+            <p className='exclude-description-contact'>{pickContact.contact.numero}</p>
+          </article>
+          <button className="modal-button button-exclude" onClick={handleExclude}>Excluir</button>
 
       </Modal>
-
-      
     </>
   )
 }

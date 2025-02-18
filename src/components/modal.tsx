@@ -1,6 +1,5 @@
 import React  from "react";
 
-
 export interface ModalProps{
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
@@ -29,11 +28,12 @@ const MODAL_STYLE: React.CSSProperties = {
     padding: '1.8rem 2.5rem',
     backgroundColor: 'var(--white)',
     boxShadow: '4px 4px 8px var(--dark), -4px -4px 8px var(--light-dark)',
-    borderRadius: '1rem'
+    borderRadius: '1rem',
+    maxHeight: '95vh',
+    overflowY: 'auto'
+  
 }
 
-
-/// Validação com zod
 
 export default function Modal({isOpen, setIsOpen, children, className}: ModalProps){
 
