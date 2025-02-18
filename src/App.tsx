@@ -50,7 +50,7 @@ function App() {
   const [contacts, setContacts] = useState<Contact[]>([])
   const [phone, setPhone] = useState<string>('');
   const isFirstRender = useRef<boolean>(true);
-  const [categoryButtons, setCategoryButtons] = useState<CategoryButtons>({
+  const [categoryButtons] = useState<CategoryButtons>({
     todos: false,
     familia: false,
     amigos: false,
