@@ -17,8 +17,8 @@ Clique [aqui](https://gerenciador-de-contatos-theta.vercel.app/)  para visitar o
 ## Screenshot do projeto
 Imagem da tela Inicial (Mobile)
 
-![CoinWatch Screen Image](/src/assets/screenshotMobile.png)
+![Imagem Gerenciador de Contatos](/src/assets/screenshotMobile.png) ![Imagem Formulário do Gerenciador de contatos](/src/assets/screenshotMobileForm.png)
 
 Imagem da tela Inicial (Desktop)
 
-![CoinWatch Screen Image](/src/assets/screenshotDesktop.png)
+![Imagem Gerenciador de contatos Desktop](/src/assets/screenshotDesktop.png)
