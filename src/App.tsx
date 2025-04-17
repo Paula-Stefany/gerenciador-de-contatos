@@ -48,7 +48,6 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalExclude, setModalExclude] = useState<boolean>(false);
   const [contacts, setContacts] = useState<Contact[]>([])
-  const [phone, setPhone] = useState<string>('');
   const isFirstRender = useRef<boolean>(true);
   const [categoryButtons] = useState<CategoryButtons>({
     todos: false,
@@ -57,11 +56,20 @@ function App() {
     colegas: false
   });
 
+  const [editedContact, setEditedContact] = useState<{
+    enabled: boolean;
+    contact: Contact;
+  }>({
+    enabled: false,
+    contact: defaultValues
+  })
+
   const [choosedCategory, setChoosedCategory] = useState<keyof CategoryButtons>('todos');
 
-  const {register, handleSubmit, reset, formState:{errors}} = useForm<createContactFormData>({resolver: zodResolver(createContactFormSchema), 
+  const {register, handleSubmit, reset, formState:{errors}, setValue} = useForm<createContactFormData>({resolver: zodResolver(createContactFormSchema), 
     defaultValues
   });
+
   const [pickContact, setPickContact] = useState<PickContact>({
     toEdit: false,
     toExclude: false,
@@ -108,8 +116,12 @@ function App() {
       return;
     }
 
+    if (editedContact.enabled){
+      saveEdit(data);
+      return;
+    }
+
     setContacts(prevContact => [...prevContact, data]);
-    setPhone('');
     reset()
     setIsModalOpen(false);
 
@@ -134,7 +146,7 @@ function App() {
 
   const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const formattedPhone = formatPhoneNumber(event.target.value);
-      setPhone(formattedPhone); 
+      setValue('numero', formattedPhone); 
   };
 
   function ContactToExclude(index: number){
@@ -163,6 +175,39 @@ function App() {
     setModalExclude(false);
 
   }
+
+  function editContact(index: number){
+
+    const contactToEdit: Contact = contacts[index];
+
+    reset(contactToEdit);
+    setEditedContact({
+      enabled: true,
+      contact: contactToEdit
+    })
+
+  }
+
+  
+  function saveEdit(updatedContact: Contact){
+
+    const indexcontact = contacts.findIndex(contact => contact === editedContact.contact); 
+    const allcontacts = [...contacts];
+
+    allcontacts[indexcontact] = updatedContact;
+    setContacts(allcontacts);
+    
+
+    setEditedContact({
+      enabled: false,
+      contact: defaultValues
+    })
+
+    reset(defaultValues);
+    setIsModalOpen(false);
+
+  }
+  
 
   return (
     <>
@@ -244,7 +289,7 @@ function App() {
                         <p>{Object.keys(contact.categoria).filter(key => contact.categoria[key as keyof Categoria])}</p>
                       </div>
                       <div className='card-icons'>
-                        <i className="fa-regular fa-pen-to-square"></i>
+                        <i className="fa-regular fa-pen-to-square" onClick={() => {setIsModalOpen(true); editContact(index);}}></i>
                         <i className="fa-regular fa-trash-can" onClick={() => {setModalExclude(true); ContactToExclude(index)}}></i>
                       </div>
                     </div>
@@ -275,7 +320,7 @@ function App() {
           <label htmlFor='number'>* Número</label>
           <div className='form-input-container'>
             <i className="fa-solid fa-mobile-screen-button"></i>
-            <input {...register('numero')} className='form-input' placeholder='(xx) xxxxx-xxxx' value={phone} onChange={handlePhoneChange}></input>
+            <input {...register('numero')} className='form-input' placeholder='(xx) xxxxx-xxxx' onChange={handlePhoneChange}></input>
           </div>
           {errors.numero && <span className='error'>* {errors.numero.message}</span>}
 
